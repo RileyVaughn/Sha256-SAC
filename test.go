@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func main() {
+func Test() {
 
 	if TestSha256("SHA256ShortMsg.rsp") {
 		fmt.Println("Sha256 passed all short test vectors")
@@ -21,12 +21,6 @@ func main() {
 	} else {
 		fmt.Println("Sha256 failed a Long test vectors")
 	}
-
-	// input := "00"
-	// temp := []byte{asciiToNum(input[0]), asciiToNum(input[1])}
-	// char := (temp[0] << 4) + temp[1]
-	// fmt.Println(Sha256(string(char)))
-	//fmt.Println(Sha256(""))
 
 }
 
@@ -108,4 +102,43 @@ func asciiToNum(a byte) byte {
 	} else {
 		return byte(a - 87)
 	}
+}
+
+func Clean(filename string) {
+
+	// Read file
+	file, err := io.ReadFile("./testvectors/" + filename)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+	// Read data as string and remove top comments
+	data := string(file)
+	dataSlice := strings.Split(data, "\n")
+	dataSlice = dataSlice[7:]
+
+	//Remove empty strings
+	var temp []string
+	for _, line := range dataSlice {
+		if len(line) > 1 {
+			temp = append(temp, line)
+		}
+	}
+	dataSlice = temp
+
+	//Remove prefix and leave only the values
+	for i, line := range dataSlice {
+		line = strings.ReplaceAll(line, " ", "")
+		line = strings.ReplaceAll(line, "\r", "")
+		dataSlice[i] = strings.Split(line, "=")[1]
+	}
+
+	data = strings.Join(dataSlice, "\n")
+
+	// Write new file
+	err = io.WriteFile("./cleanTV/"+filename, []byte(data), 0777)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 }

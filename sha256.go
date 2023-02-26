@@ -39,18 +39,18 @@ func Sha256(msg string) string {
 
 }
 
-func Sha256_compress(chunk [16]uint32, hash [8]uint32) [8]uint32 {
+func Sha256_compress(chunk [16]uint32, iv [8]uint32) [8]uint32 {
 
 	msgSchedule := createMessageSchedule(chunk)
 
-	a := hash[0]
-	b := hash[1]
-	c := hash[2]
-	d := hash[3]
-	e := hash[4]
-	f := hash[5]
-	g := hash[6]
-	h := hash[7]
+	a := iv[0]
+	b := iv[1]
+	c := iv[2]
+	d := iv[3]
+	e := iv[4]
+	f := iv[5]
+	g := iv[6]
+	h := iv[7]
 
 	for t := 0; t < 64; t++ {
 
@@ -58,16 +58,16 @@ func Sha256_compress(chunk [16]uint32, hash [8]uint32) [8]uint32 {
 
 	}
 
-	hash[0] = (hash[0] + a)
-	hash[1] = (hash[1] + b)
-	hash[2] = (hash[2] + c)
-	hash[3] = (hash[3] + d)
-	hash[4] = (hash[4] + e)
-	hash[5] = (hash[5] + f)
-	hash[6] = (hash[6] + g)
-	hash[7] = (hash[7] + h)
+	iv[0] = (iv[0] + a)
+	iv[1] = (iv[1] + b)
+	iv[2] = (iv[2] + c)
+	iv[3] = (iv[3] + d)
+	iv[4] = (iv[4] + e)
+	iv[5] = (iv[5] + f)
+	iv[6] = (iv[6] + g)
+	iv[7] = (iv[7] + h)
 
-	return hash
+	return iv
 }
 
 func Sha256_compress_round(a uint32, b uint32, c uint32, d uint32, e uint32, f uint32, g uint32, h uint32, k uint32, msg uint32) (uint32, uint32, uint32, uint32, uint32, uint32, uint32, uint32) {

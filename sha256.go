@@ -52,20 +52,9 @@ func Sha256_compress(chunk []uint32, hash [8]uint32) [8]uint32 {
 	f := hash[5]
 	g := hash[6]
 	h := hash[7]
-	//fmt.Printf("a=%x b=%x c=%x d=%x e=%x f=%x g=%x h=%x T1=%x T2=%x\n", a, b, c, d, e, f, g, h, h + Σ1(e) + Ch(e, f, g) + K[0] + msgSchedule[0], Σ0(a) + Maj(a, b, c))
-	for t := 0; t < 64; t++ {
-		// T1 := h + Σ1(e) + Ch(e, f, g) + K[t] + msgSchedule[t]
-		// T2 := Σ0(a) + Maj(a, b, c)
 
-		// h = g
-		// g = f
-		// f = e
-		// e = (d + T1)
-		// d = c
-		// c = b
-		// b = a
-		// a = (T1 + T2)
-		// //fmt.Printf("a=%x b=%x c=%x d=%x e=%x f=%x g=%x h=%x T1=%x T2=%x\n", a, b, c, d, e, f, g, h, T1, T2)
+	for t := 0; t < 64; t++ {
+
 		a, b, c, d, e, f, g, h = Sha256_compress_round(a, b, c, d, e, f, g, h, K[t], msgSchedule[t])
 
 	}

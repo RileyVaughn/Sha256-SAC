@@ -32,46 +32,53 @@ func Sha256(msg string) string {
 	//COMPUTE HASH
 	for _, chunk := range msgBSlice {
 
-		msgSchedule := createMessageSchedule(chunk)
-
-		a := hash[0]
-		b := hash[1]
-		c := hash[2]
-		d := hash[3]
-		e := hash[4]
-		f := hash[5]
-		g := hash[6]
-		h := hash[7]
-		//fmt.Printf("a=%x b=%x c=%x d=%x e=%x f=%x g=%x h=%x T1=%x T2=%x\n", a, b, c, d, e, f, g, h, h + Σ1(e) + Ch(e, f, g) + K[0] + msgSchedule[0], Σ0(a) + Maj(a, b, c))
-		for t := 0; t < 64; t++ {
-			T1 := h + Σ1(e) + Ch(e, f, g) + K[t] + msgSchedule[t]
-			T2 := Σ0(a) + Maj(a, b, c)
-
-			h = g
-			g = f
-			f = e
-			e = (d + T1)
-			d = c
-			c = b
-			b = a
-			a = (T1 + T2)
-			//fmt.Printf("a=%x b=%x c=%x d=%x e=%x f=%x g=%x h=%x T1=%x T2=%x\n", a, b, c, d, e, f, g, h, T1, T2)
-
-		}
-
-		hash[0] = (hash[0] + a)
-		hash[1] = (hash[1] + b)
-		hash[2] = (hash[2] + c)
-		hash[3] = (hash[3] + d)
-		hash[4] = (hash[4] + e)
-		hash[5] = (hash[5] + f)
-		hash[6] = (hash[6] + g)
-		hash[7] = (hash[7] + h)
+		hash = Sha256_compress(chunk, hash)
 
 	}
 
 	return fmt.Sprintf("%08x%08x%08x%08x%08x%08x%08x%08x", hash[0], hash[1], hash[2], hash[3], hash[4], hash[5], hash[6], hash[7])
 
+}
+
+func Sha256_compress(chunk []uint32, hash [8]uint32) [8]uint32 {
+
+	msgSchedule := createMessageSchedule(chunk)
+
+	a := hash[0]
+	b := hash[1]
+	c := hash[2]
+	d := hash[3]
+	e := hash[4]
+	f := hash[5]
+	g := hash[6]
+	h := hash[7]
+	//fmt.Printf("a=%x b=%x c=%x d=%x e=%x f=%x g=%x h=%x T1=%x T2=%x\n", a, b, c, d, e, f, g, h, h + Σ1(e) + Ch(e, f, g) + K[0] + msgSchedule[0], Σ0(a) + Maj(a, b, c))
+	for t := 0; t < 64; t++ {
+		T1 := h + Σ1(e) + Ch(e, f, g) + K[t] + msgSchedule[t]
+		T2 := Σ0(a) + Maj(a, b, c)
+
+		h = g
+		g = f
+		f = e
+		e = (d + T1)
+		d = c
+		c = b
+		b = a
+		a = (T1 + T2)
+		//fmt.Printf("a=%x b=%x c=%x d=%x e=%x f=%x g=%x h=%x T1=%x T2=%x\n", a, b, c, d, e, f, g, h, T1, T2)
+
+	}
+
+	hash[0] = (hash[0] + a)
+	hash[1] = (hash[1] + b)
+	hash[2] = (hash[2] + c)
+	hash[3] = (hash[3] + d)
+	hash[4] = (hash[4] + e)
+	hash[5] = (hash[5] + f)
+	hash[6] = (hash[6] + g)
+	hash[7] = (hash[7] + h)
+
+	return hash
 }
 
 func preprocess(msg string) [][]uint32 {

@@ -28,8 +28,7 @@ func Sha256(msg string) string {
 
 	msgBSlice := preprocess(msg)
 	hash := H
-	//fmt.Println(msgBSlice)
-	//COMPUTE HASH
+
 	for _, chunk := range msgBSlice {
 
 		hash = Sha256_compress(chunk, hash)
@@ -40,7 +39,7 @@ func Sha256(msg string) string {
 
 }
 
-func Sha256_compress(chunk []uint32, hash [8]uint32) [8]uint32 {
+func Sha256_compress(chunk [16]uint32, hash [8]uint32) [8]uint32 {
 
 	msgSchedule := createMessageSchedule(chunk)
 
@@ -86,7 +85,7 @@ func Sha256_compress_round(a uint32, b uint32, c uint32, d uint32, e uint32, f u
 	return a, b, c, d, e, f, g, h
 }
 
-func preprocess(msg string) [][]uint32 {
+func preprocess(msg string) [][16]uint32 {
 
 	//Convert msg to bits
 	msgBytes := stringToByteSlice(msg)
@@ -107,9 +106,14 @@ func preprocess(msg string) [][]uint32 {
 	msgUint32 := bytesToUint32(msgBytes)
 
 	//Seperate into strings size 512
-	msgUSlice := [][]uint32{}
+	msgUSlice := [][16]uint32{}
 	for len(msgUint32) > 0 {
-		msgUSlice = append(msgUSlice, msgUint32[:16])
+		var msgUint32_16 [16]uint32
+		for i := 0; i < 16; i++ {
+			msgUint32_16[i] = msgUint32[i]
+		}
+
+		msgUSlice = append(msgUSlice, msgUint32_16)
 		msgUint32 = msgUint32[16:]
 	}
 
@@ -158,7 +162,7 @@ func bytesToUint32(msgBytes []byte) []uint32 {
 	return msgUint
 }
 
-func createMessageSchedule(chunk []uint32) [64]uint32 {
+func createMessageSchedule(chunk [16]uint32) [64]uint32 {
 
 	var msgSchedule [64]uint32
 	for j := range chunk {

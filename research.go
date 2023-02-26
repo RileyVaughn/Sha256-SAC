@@ -4,7 +4,7 @@ func main() {
 	Test()
 }
 
-func Sha256_compress_verbose(chunk []uint32, hash [8]uint32) [64][8]uint32 {
+func Sha256_compress_verbose(chunk [16]uint32, hash [8]uint32) [64][8]uint32 {
 	msgSchedule := createMessageSchedule(chunk)
 
 	a := hash[0]
@@ -44,3 +44,5 @@ func Sha256_compress_verbose(chunk []uint32, hash [8]uint32) [64][8]uint32 {
 	return rounds
 
 }
+
+//func FlipRandBit([]uint32)

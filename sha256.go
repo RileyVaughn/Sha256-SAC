@@ -1,4 +1,4 @@
-package sha256
+package main
 
 // @param msg is the string to be hashed
 
@@ -24,7 +24,7 @@ var K [64]uint32 = [64]uint32{
 var H [8]uint32 = [8]uint32{
 	0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19}
 
-func Hash(msg string) string {
+func Sha256(msg string) string {
 
 	msgBSlice := preprocess(msg)
 	hash := H

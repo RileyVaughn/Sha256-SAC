@@ -1,4 +1,4 @@
-package sha256
+package main
 
 import (
 	io "io/ioutil"
@@ -10,6 +10,7 @@ func Clean(filename string) {
 
 	// Read file
 	file, err := io.ReadFile("./testvectors/" + filename)
+
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -30,13 +31,14 @@ func Clean(filename string) {
 	//Remove prefix and leave only the values
 	for i, line := range dataSlice {
 		line = strings.ReplaceAll(line, " ", "")
+		line = strings.ReplaceAll(line, "\r", "")
 		dataSlice[i] = strings.Split(line, "=")[1]
 	}
 
-	data = strings.Join(dataSlice, "")
+	data = strings.Join(dataSlice, "\n")
 
 	// Write new file
-	err = io.WriteFile("./cleanTV/"+filename, []byte(data), 0644)
+	err = io.WriteFile("./cleanTV/"+filename, []byte(data), 0777)
 	if err != nil {
 		log.Fatal(err)
 	}

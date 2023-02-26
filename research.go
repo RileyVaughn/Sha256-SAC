@@ -2,22 +2,30 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"math/rand"
 	"time"
 )
+
+type fn func(chunk [16]uint32, iv [8]uint32) ([8]uint32, [64][8]uint32)
 
 func main() {
 	//Test()
 	rand.Seed(time.Now().UnixNano())
 
-	ZERO_IV := [8]uint32{0, 0, 0, 0, 0, 0, 0, 0}
+	means := MeasureMean(1000, "H", Sha256_compress_verbose)
+	fmt.Println(means)
+	means = MeasureMean(1000, "ZERO", Sha256_compress_verbose)
+	fmt.Println(means)
+	means = MeasureMean(1000, "Random", Sha256_compress_verbose)
+	fmt.Println(means)
+	fmt.Println()
 
-	means := MeasureMean(1000, H)
+	means = MeasureMean(1000, "H", Sha256XOR_compress_verbose)
 	fmt.Println(means)
-	means = MeasureMean(1000, ZERO_IV)
+	means = MeasureMean(1000, "ZERO", Sha256XOR_compress_verbose)
 	fmt.Println(means)
-	//This iv is constant throught all test, we would like ot rye with random evert time
-	means = MeasureMean(1000, generateIV())
+	means = MeasureMean(1000, "Random", Sha256XOR_compress_verbose)
 	fmt.Println(means)
 
 }
@@ -63,10 +71,78 @@ func Sha256_compress_verbose(chunk [16]uint32, iv [8]uint32) ([8]uint32, [64][8]
 
 }
 
-func MeasureMean(count int, iv [8]uint32) [64]int {
+func Sha256XOR_compress_verbose(chunk [16]uint32, iv [8]uint32) ([8]uint32, [64][8]uint32) {
+	msgSchedule := createMessageSchedule(chunk)
+
+	a := iv[0]
+	b := iv[1]
+	c := iv[2]
+	d := iv[3]
+	e := iv[4]
+	f := iv[5]
+	g := iv[6]
+	h := iv[7]
+
+	var rounds [64][8]uint32
+
+	for t := 0; t < 64; t++ {
+
+		a, b, c, d, e, f, g, h = Sha256XOR_compress_round(a, b, c, d, e, f, g, h, K[t], msgSchedule[t])
+		rounds[t][0] = a
+		rounds[t][1] = b
+		rounds[t][2] = c
+		rounds[t][3] = d
+		rounds[t][4] = e
+		rounds[t][5] = f
+		rounds[t][6] = g
+		rounds[t][7] = h
+
+	}
+
+	iv[0] = (iv[0] ^ a)
+	iv[1] = (iv[1] ^ b)
+	iv[2] = (iv[2] ^ c)
+	iv[3] = (iv[3] ^ d)
+	iv[4] = (iv[4] ^ e)
+	iv[5] = (iv[5] ^ f)
+	iv[6] = (iv[6] ^ g)
+	iv[7] = (iv[7] ^ h)
+
+	return iv, rounds
+
+}
+
+func Sha256XOR_compress_round(a uint32, b uint32, c uint32, d uint32, e uint32, f uint32, g uint32, h uint32, k uint32, msg uint32) (uint32, uint32, uint32, uint32, uint32, uint32, uint32, uint32) {
+	T1 := h ^ Σ1(e) ^ Ch(e, f, g) ^ k ^ msg
+	T2 := Σ0(a) ^ Maj(a, b, c)
+
+	h = g
+	g = f
+	f = e
+	e = (d ^ T1)
+	d = c
+	c = b
+	b = a
+	a = (T1 ^ T2)
+	return a, b, c, d, e, f, g, h
+}
+
+// If randomiv
+func MeasureMean(count int, ivType string, f fn) [64]int {
 	var means [64]int
+
 	for i := 0; i < count; i++ {
-		roundCounts := MeasurePseudo(generateMsg(), iv)
+		var roundCounts [64]int
+		if ivType == "ZERO" {
+			roundCounts = MeasurePseudo(generateMsg(), [8]uint32{0, 0, 0, 0, 0, 0, 0, 0}, f)
+		} else if ivType == "H" {
+			roundCounts = MeasurePseudo(generateMsg(), H, f)
+		} else if ivType == "Random" {
+			roundCounts = MeasurePseudo(generateMsg(), generateIV(), f)
+		} else {
+			log.Fatalln("Wrong IV input")
+		}
+
 		for j := 0; j < 64; j++ {
 			means[j] += roundCounts[j]
 		}
@@ -78,10 +154,10 @@ func MeasureMean(count int, iv [8]uint32) [64]int {
 	return means
 }
 
-func MeasurePseudo(msg [16]uint32, iv [8]uint32) [64]int {
+func MeasurePseudo(msg [16]uint32, iv [8]uint32, f fn) [64]int {
 
-	_, rounds := Sha256_compress_verbose(msg, iv)
-	_, roundsFlip := Sha256_compress_verbose(FlipRandBit(msg), iv)
+	_, rounds := f(msg, iv)
+	_, roundsFlip := f(FlipRandBit(msg), iv)
 
 	var roundCount [64]int
 	for i := 0; i < 64; i++ {

@@ -54,7 +54,17 @@ func Sha256_compress(chunk [16]uint32, iv [8]uint32) [8]uint32 {
 
 	for t := 0; t < 64; t++ {
 
-		a, b, c, d, e, f, g, h = Sha256_compress_round(a, b, c, d, e, f, g, h, K[t], msgSchedule[t])
+		T1 := h + Σ1(e) + Ch(e, f, g) + K[t] + msgSchedule[t]
+		T2 := Σ0(a) + Maj(a, b, c)
+
+		h = g
+		g = f
+		f = e
+		e = (d + T1)
+		d = c
+		c = b
+		b = a
+		a = (T1 + T2)
 
 	}
 
@@ -68,21 +78,6 @@ func Sha256_compress(chunk [16]uint32, iv [8]uint32) [8]uint32 {
 	iv[7] = (iv[7] + h)
 
 	return iv
-}
-
-func Sha256_compress_round(a uint32, b uint32, c uint32, d uint32, e uint32, f uint32, g uint32, h uint32, k uint32, msg uint32) (uint32, uint32, uint32, uint32, uint32, uint32, uint32, uint32) {
-	T1 := h + Σ1(e) + Ch(e, f, g) + k + msg
-	T2 := Σ0(a) + Maj(a, b, c)
-
-	h = g
-	g = f
-	f = e
-	e = (d + T1)
-	d = c
-	c = b
-	b = a
-	a = (T1 + T2)
-	return a, b, c, d, e, f, g, h
 }
 
 func preprocess(msg string) [][16]uint32 {

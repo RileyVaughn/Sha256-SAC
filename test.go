@@ -22,6 +22,18 @@ func Test() {
 		fmt.Println("Sha256 failed a Long test vectors")
 	}
 
+	if TestSha256Verbose("SHA256ShortMsg.rsp") {
+		fmt.Println("Sha256Verbose passed all short test vectors")
+	} else {
+		fmt.Println("Sha256Verbose failed a short test vectors")
+	}
+
+	if TestSha256Verbose("SHA256LongMsg.rsp") {
+		fmt.Println("Sha256Verbose passed all Long test vectors")
+	} else {
+		fmt.Println("Sha256Verbose failed a Long test vectors")
+	}
+
 }
 
 func TestSha256(filename string) bool {
@@ -55,6 +67,46 @@ func TestSha256(filename string) bool {
 	for i := range lengths {
 		if hashs[i] != Sha256(repMsgs[i]) {
 			fmt.Printf("%v   %v \n", hashs[i], Sha256(repMsgs[i]))
+			pass = false
+		}
+	}
+
+	return pass
+}
+
+//because I'm lazy this is just a copy and paste
+func TestSha256Verbose(filename string) bool {
+
+	pass := true
+
+	Clean(filename)
+
+	lengths, msgs, hashs := ReadClean(filename)
+
+	// The test input is represented in hex where evry 2 items make a byte. This converts their style to my style.
+	var repMsgs []string
+	for _, line := range msgs {
+		var temp []byte
+		for i, _ := range line {
+			if i%2 == 0 {
+				temp = append(temp, (asciiToNum(line[i])<<4)+asciiToNum(line[i+1]))
+
+			}
+
+		}
+		// Special case where input is empty
+		if len(temp) == 1 && temp[0] == 0 {
+			repMsgs = append(repMsgs, "")
+		} else {
+			repMsgs = append(repMsgs, string(temp))
+		}
+	}
+
+	//Finally tests
+	for i := range lengths {
+		val, _ := Sha256Verbose(repMsgs[i])
+		if hashs[i] != val {
+			fmt.Printf("%v   %v \n", hashs[i], val)
 			pass = false
 		}
 	}

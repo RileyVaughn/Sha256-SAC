@@ -36,13 +36,19 @@ func main() {
 	Write("Random_normal", means)
 	fmt.Println()
 
-	// means = MeasureMean(2000, "H", []FunctiionName{XOR})
-	// fmt.Println(means)
+	means = MeasureMean(10000, "H", []FunctiionName{XOR})
+	fmt.Println(means)
+	Write("H_XOR", means)
+	fmt.Println()
 	// means = MeasureMean(2000, "ZERO", []FunctiionName{XOR})
 	// fmt.Println(means)
 	// means = MeasureMean(2000, "Random", []FunctiionName{XOR})
 	// fmt.Println(means)
 	// fmt.Println()
+
+	means = MeasureMean(10000, "ZERO", []FunctiionName{XOR, MAJOR, CHOOSE})
+	fmt.Println(means)
+	Write("ZERO_XOR_MAJ_CH", means)
 
 }
 

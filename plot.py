@@ -17,3 +17,5 @@ def ReadAndPlot(filename):
 ReadAndPlot('H_normal')
 ReadAndPlot('ZERO_normal')
 ReadAndPlot('Random_normal')
+ReadAndPlot('H_XOR')
+ReadAndPlot('ZERO_XOR_MAJ_CH')

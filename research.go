@@ -243,6 +243,35 @@ func MeasureMean(count int, ivType string, names []FunctiionName) [64]int {
 	return means
 }
 
+func MeasureStrictMean(count int, ivType string, names []FunctiionName) [256]int {
+	var means [256]int
+
+	for i := 0; i < count; i++ {
+		var roundCounts [64][8]uint32
+		if ivType == "ZERO" {
+			roundCounts = MeasureStrict(generateMsg(), [8]uint32{0, 0, 0, 0, 0, 0, 0, 0}, names)
+		} else if ivType == "H" {
+			roundCounts = MeasureStrict(generateMsg(), H, names)
+		} else if ivType == "Random" {
+			roundCounts = MeasureStrict(generateMsg(), generateIV(), names)
+		} else {
+			log.Fatalln("Wrong IV input")
+		}
+
+		for j := 0; j < 64; j++ {
+			means[j] += roundCounts[j]
+		}
+
+	}
+	for i := 0; i < 64; i++ {
+		means[i] = means[i] / count
+	}
+	return means
+
+}
+
+
+
 func MeasurePseudo(msg [16]uint32, iv [8]uint32, names []FunctiionName) [64]int {
 
 	_, rounds := Sha256_compress_verbose(msg, iv, names)
@@ -256,6 +285,22 @@ func MeasurePseudo(msg [16]uint32, iv [8]uint32, names []FunctiionName) [64]int 
 	return roundCount
 
 }
+
+func MeasureStrict(msg [16]uint32, iv [8]uint32, names []FunctiionName) [64][8]uint32 {
+
+	_, rounds := Sha256_compress_verbose(msg, iv, names)
+	_, roundsFlip := Sha256_compress_verbose(FlipRandBit(msg), iv, names)
+
+	var roundXOR [64][8]uint32
+	for i := 0; i < 64; i++ {
+		roundXOR[i] = xorHash(rounds[i], roundsFlip[i])
+	}
+
+	return roundXOR
+
+}
+
+
 
 func FlipRandBit(msg [16]uint32) [16]uint32 {
 	byteChoice := rand.Intn(16)
@@ -300,6 +345,18 @@ func xorHash(hash1 [8]uint32, hash2 [8]uint32) [8]uint32 {
 	}
 	return rv
 }
+
+func Uint32SToBoolS(in [8]uint32)[256]bool{
+	var rv [256]bool
+
+	for i := 0; i < 8; i++ {
+		in[i]
+
+	}
+
+}
+
+
 
 func countOnes(xorMsgs [8]uint32) int {
 	var count int

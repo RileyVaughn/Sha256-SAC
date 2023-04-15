@@ -7,7 +7,6 @@ import (
 	"math/rand"
 	"os"
 	"strconv"
-	"time"
 )
 
 type FunctiionName int
@@ -23,32 +22,36 @@ const (
 
 func main() {
 	// Test()
-	rand.Seed(time.Now().UnixNano())
+	// rand.Seed(time.Now().UnixNano())
 
-	means := MeasureMean(10000, "H", make([]FunctiionName, 0))
-	fmt.Println(means)
-	Write("H_normal", means)
-	means = MeasureMean(10000, "ZERO", make([]FunctiionName, 0))
-	fmt.Println(means)
-	Write("ZERO_normal", means)
-	means = MeasureMean(10000, "Random", make([]FunctiionName, 0))
-	fmt.Println(means)
-	Write("Random_normal", means)
-	fmt.Println()
-
-	means = MeasureMean(10000, "H", []FunctiionName{XOR})
-	fmt.Println(means)
-	Write("H_XOR", means)
-	fmt.Println()
-	// means = MeasureMean(2000, "ZERO", []FunctiionName{XOR})
+	// means := MeasureMean(10000, "H", make([]FunctiionName, 0))
 	// fmt.Println(means)
-	// means = MeasureMean(2000, "Random", []FunctiionName{XOR})
+	// Write("H_normal", means)
+	// means = MeasureMean(10000, "ZERO", make([]FunctiionName, 0))
 	// fmt.Println(means)
+	// Write("ZERO_normal", means)
+	// means = MeasureMean(10000, "Random", make([]FunctiionName, 0))
+	// fmt.Println(means)
+	// Write("Random_normal", means)
 	// fmt.Println()
 
-	means = MeasureMean(10000, "ZERO", []FunctiionName{XOR, MAJOR, CHOOSE})
-	fmt.Println(means)
-	Write("ZERO_XOR_MAJ_CH", means)
+	// means = MeasureMean(10000, "H", []FunctiionName{XOR})
+	// fmt.Println(means)
+	// Write("H_XOR", means)
+	// fmt.Println()
+	// // means = MeasureMean(2000, "ZERO", []FunctiionName{XOR})
+	// // fmt.Println(means)
+	// // means = MeasureMean(2000, "Random", []FunctiionName{XOR})
+	// // fmt.Println(means)
+	// // fmt.Println()
+
+	// means = MeasureMean(10000, "ZERO", []FunctiionName{XOR, MAJOR, CHOOSE})
+	// fmt.Println(means)
+	// Write("ZERO_XOR_MAJ_CH", means)
+
+	means := MeasureStrictMean(10000, "H", make([]FunctiionName, 0))
+	fmt.Println(Min(means[63]))
+	fmt.Println(Max(means[63]))
 
 }
 
@@ -243,11 +246,11 @@ func MeasureMean(count int, ivType string, names []FunctiionName) [64]int {
 	return means
 }
 
-func MeasureStrictMean(count int, ivType string, names []FunctiionName) [256]int {
-	var means [256]int
+func MeasureStrictMean(count int, ivType string, names []FunctiionName) [64][256]float32 {
+	var means [64][256]float32
 
 	for i := 0; i < count; i++ {
-		var roundCounts [64][8]uint32
+		var roundCounts [64][256]bool
 		if ivType == "ZERO" {
 			roundCounts = MeasureStrict(generateMsg(), [8]uint32{0, 0, 0, 0, 0, 0, 0, 0}, names)
 		} else if ivType == "H" {
@@ -259,18 +262,22 @@ func MeasureStrictMean(count int, ivType string, names []FunctiionName) [256]int
 		}
 
 		for j := 0; j < 64; j++ {
-			means[j] += roundCounts[j]
+			for k := 0; k < 256; k++ {
+				if roundCounts[j][k] {
+					means[j][k] += 1
+				}
+			}
 		}
 
 	}
 	for i := 0; i < 64; i++ {
-		means[i] = means[i] / count
+		for j := 0; j < 256; j++ {
+			means[i][j] = means[i][j] / float32(count)
+		}
 	}
 	return means
 
 }
-
-
 
 func MeasurePseudo(msg [16]uint32, iv [8]uint32, names []FunctiionName) [64]int {
 
@@ -286,21 +293,19 @@ func MeasurePseudo(msg [16]uint32, iv [8]uint32, names []FunctiionName) [64]int 
 
 }
 
-func MeasureStrict(msg [16]uint32, iv [8]uint32, names []FunctiionName) [64][8]uint32 {
+func MeasureStrict(msg [16]uint32, iv [8]uint32, names []FunctiionName) [64][256]bool {
 
 	_, rounds := Sha256_compress_verbose(msg, iv, names)
 	_, roundsFlip := Sha256_compress_verbose(FlipRandBit(msg), iv, names)
 
-	var roundXOR [64][8]uint32
+	var roundXOR [64][256]bool
 	for i := 0; i < 64; i++ {
-		roundXOR[i] = xorHash(rounds[i], roundsFlip[i])
+		roundXOR[i] = Uint32SToBoolS(xorHash(rounds[i], roundsFlip[i]))
 	}
 
 	return roundXOR
 
 }
-
-
 
 func FlipRandBit(msg [16]uint32) [16]uint32 {
 	byteChoice := rand.Intn(16)
@@ -346,17 +351,18 @@ func xorHash(hash1 [8]uint32, hash2 [8]uint32) [8]uint32 {
 	return rv
 }
 
-func Uint32SToBoolS(in [8]uint32)[256]bool{
+func Uint32SToBoolS(uints [8]uint32) [256]bool {
 	var rv [256]bool
 
-	for i := 0; i < 8; i++ {
-		in[i]
+	for i := uint32(0); i < 8; i++ {
+		for j := uint32(0); j < 32; j++ {
+			rv[i*32+j] = uints[i]&(uint32(1)<<j) != 0
 
+		}
 	}
 
+	return rv
 }
-
-
 
 func countOnes(xorMsgs [8]uint32) int {
 	var count int
@@ -396,4 +402,30 @@ func Write(filename string, data [64]int) {
 		log.Fatalln(err)
 	}
 
+}
+
+func Min(array [256]float32) float32 {
+
+	min := array[0]
+
+	for _, val := range array {
+		if val < min {
+			min = val
+		}
+	}
+
+	return min
+}
+
+func Max(array [256]float32) float32 {
+
+	max := array[0]
+
+	for _, val := range array {
+		if val > max {
+			max = val
+		}
+	}
+
+	return max
 }

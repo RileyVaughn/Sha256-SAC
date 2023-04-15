@@ -55,6 +55,10 @@ func main() {
 
 }
 
+/////////////////////////////////////////////////////////////////////////////////
+// Hash and compression functions
+/////////////////////////////////////////////////////////////////////////////////
+
 func Sha256Verbose(msg string) (string, [][64][8]uint32) {
 
 	msgBSlice := preprocess(msg)
@@ -194,31 +198,9 @@ func Sha256XOR_compress_round(a uint32, b uint32, c uint32, d uint32, e uint32, 
 	return a, b, c, d, e, f, g, h
 }
 
-//XOR is opposite the rest, as the rest are default
-func FNStoBS(names []FunctiionName) [6]bool {
-
-	var out [6]bool = [6]bool{false, true, true, true, true, true}
-
-	for i := range names {
-		switch names[i] {
-		case XOR:
-			out[XOR] = true
-		case Kfunc:
-			out[Kfunc] = false
-		case CHOOSE:
-			out[CHOOSE] = false
-		case MAJOR:
-			out[MAJOR] = false
-		case SIGMA_0:
-			out[SIGMA_0] = false
-		case SIGMA_1:
-			out[SIGMA_1] = false
-
-		}
-	}
-
-	return out
-}
+/////////////////////////////////////////////////////////////////////////////////
+// Measurements
+/////////////////////////////////////////////////////////////////////////////////
 
 func MeasureMean(count int, ivType string, names []FunctiionName) [64]int {
 	var means [64]int
@@ -305,6 +287,36 @@ func MeasureStrict(msg [16]uint32, iv [8]uint32, names []FunctiionName) [64][256
 
 	return roundXOR
 
+}
+
+/////////////////////////////////////////////////////////////////////////////////
+// Auxiliary
+/////////////////////////////////////////////////////////////////////////////////
+
+//XOR is opposite the rest, as the rest are default
+func FNStoBS(names []FunctiionName) [6]bool {
+
+	var out [6]bool = [6]bool{false, true, true, true, true, true}
+
+	for i := range names {
+		switch names[i] {
+		case XOR:
+			out[XOR] = true
+		case Kfunc:
+			out[Kfunc] = false
+		case CHOOSE:
+			out[CHOOSE] = false
+		case MAJOR:
+			out[MAJOR] = false
+		case SIGMA_0:
+			out[SIGMA_0] = false
+		case SIGMA_1:
+			out[SIGMA_1] = false
+
+		}
+	}
+
+	return out
 }
 
 func FlipRandBit(msg [16]uint32) [16]uint32 {

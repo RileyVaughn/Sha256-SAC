@@ -4,18 +4,19 @@ import matplotlib.pyplot as plt
 
 def ReadAndPlot(filename):
         
-    df = pd.read_csv('./data/'+filename+'.csv')
+    df = pd.read_csv('./data/'+filename+'.csv', header=None)
+    
 
+    df = df.transpose()
+    ax = df.plot(kind="box",showfliers=False,xlabel="Round #",ylabel="% Bits Flipped",legend=False,figsize=(16,8))
+    vals = ax.get_yticks()
+    ax.set_yticklabels(['{:,.2%}'.format(x) for x in vals])
 
-    df.plot(x=0, y=1,figsize=(8,8), kind='line',xticks=[x for x in range(65) if x %8 == 0],yticks = [x for x in range(257) if x %16 == 0],xlabel="Round #",ylabel="Bits Changed",legend=False)
-    plt.plot([0,64],[128,128],linestyle='dotted',)
-    #plt.show()
     plt.savefig("./data/plots/"+ filename+'.png')
 
 
+    
 
-ReadAndPlot('H_normal')
-ReadAndPlot('ZERO_normal')
-ReadAndPlot('Random_normal')
+
+ReadAndPlot('H_Normal')
 ReadAndPlot('H_XOR')
-ReadAndPlot('ZERO_XOR_MAJ_CH')

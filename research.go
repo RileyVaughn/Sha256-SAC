@@ -7,12 +7,13 @@ import (
 	"math/rand"
 	"os"
 	"strconv"
+	"time"
 )
 
-type FunctiionName int
+type FunctionName int
 
 const (
-	XOR FunctiionName = iota
+	XOR FunctionName = iota
 	Kfunc
 	CHOOSE
 	MAJOR
@@ -21,37 +22,43 @@ const (
 )
 
 func main() {
-	// Test()
-	// rand.Seed(time.Now().UnixNano())
+	//Test()
+	rand.Seed(time.Now().UnixNano())
 
-	// means := MeasureMean(10000, "H", make([]FunctiionName, 0))
+	// means := MeasureMean(10000, "H", make([]FunctionName, 0))
 	// fmt.Println(means)
 	// Write("H_normal", means)
-	// means = MeasureMean(10000, "ZERO", make([]FunctiionName, 0))
+	// means = MeasureMean(10000, "ZERO", make([]FunctionName, 0))
 	// fmt.Println(means)
 	// Write("ZERO_normal", means)
-	// means = MeasureMean(10000, "Random", make([]FunctiionName, 0))
+	// means = MeasureMean(10000, "Random", make([]FunctionName, 0))
 	// fmt.Println(means)
 	// Write("Random_normal", means)
 	// fmt.Println()
 
-	// means = MeasureMean(10000, "H", []FunctiionName{XOR})
+	// means = MeasureMean(10000, "H", []FunctionName{XOR})
 	// fmt.Println(means)
 	// Write("H_XOR", means)
 	// fmt.Println()
-	// // means = MeasureMean(2000, "ZERO", []FunctiionName{XOR})
+	// // means = MeasureMean(2000, "ZERO", []FunctionName{XOR})
 	// // fmt.Println(means)
-	// // means = MeasureMean(2000, "Random", []FunctiionName{XOR})
+	// // means = MeasureMean(2000, "Random", []FunctionName{XOR})
 	// // fmt.Println(means)
 	// // fmt.Println()
 
-	// means = MeasureMean(10000, "ZERO", []FunctiionName{XOR, MAJOR, CHOOSE})
+	// means = MeasureMean(10000, "ZERO", []FunctionName{XOR, MAJOR, CHOOSE})
 	// fmt.Println(means)
 	// Write("ZERO_XOR_MAJ_CH", means)
 
-	means := MeasureStrictMean(10000, "H", make([]FunctiionName, 0))
-	fmt.Println(Min(means[63]))
-	fmt.Println(Max(means[63]))
+	means := MeasureStrictMean(10000, "H", []FunctionName{})
+	WriteFull("H_Normal",means)
+
+
+	means = MeasureStrictMean(10000, "H", []FunctionName{XOR})
+	WriteFull("H_XOR",means)
+
+
+
 
 }
 
@@ -66,7 +73,7 @@ func Sha256Verbose(msg string) (string, [][64][8]uint32) {
 	var roundsList [][64][8]uint32
 	for _, chunk := range msgBSlice {
 		var rounds [64][8]uint32
-		hash, rounds = Sha256_compress_verbose(chunk, hash, make([]FunctiionName, 0))
+		hash, rounds = Sha256_compress_verbose(chunk, hash, make([]FunctionName, 0))
 		roundsList = append(roundsList, rounds)
 	}
 	hashString := fmt.Sprintf("%08x%08x%08x%08x%08x%08x%08x%08x", hash[0], hash[1], hash[2], hash[3], hash[4], hash[5], hash[6], hash[7])
@@ -74,7 +81,7 @@ func Sha256Verbose(msg string) (string, [][64][8]uint32) {
 
 }
 
-func Sha256_compress_verbose(chunk [16]uint32, iv [8]uint32, remove []FunctiionName) ([8]uint32, [64][8]uint32) {
+func Sha256_compress_verbose(chunk [16]uint32, iv [8]uint32, remove []FunctionName) ([8]uint32, [64][8]uint32) {
 	msgSchedule := createMessageSchedule(chunk)
 	useFunc := FNStoBS(remove)
 
@@ -202,7 +209,7 @@ func Sha256XOR_compress_round(a uint32, b uint32, c uint32, d uint32, e uint32, 
 // Measurements
 /////////////////////////////////////////////////////////////////////////////////
 
-func MeasureMean(count int, ivType string, names []FunctiionName) [64]int {
+func MeasureMean(count int, ivType string, names []FunctionName) [64]int {
 	var means [64]int
 
 	for i := 0; i < count; i++ {
@@ -228,7 +235,7 @@ func MeasureMean(count int, ivType string, names []FunctiionName) [64]int {
 	return means
 }
 
-func MeasureStrictMean(count int, ivType string, names []FunctiionName) [64][256]float32 {
+func MeasureStrictMean(count int, ivType string, names []FunctionName) [64][256]float32 {
 	var means [64][256]float32
 
 	for i := 0; i < count; i++ {
@@ -261,7 +268,7 @@ func MeasureStrictMean(count int, ivType string, names []FunctiionName) [64][256
 
 }
 
-func MeasurePseudo(msg [16]uint32, iv [8]uint32, names []FunctiionName) [64]int {
+func MeasurePseudo(msg [16]uint32, iv [8]uint32, names []FunctionName) [64]int {
 
 	_, rounds := Sha256_compress_verbose(msg, iv, names)
 	_, roundsFlip := Sha256_compress_verbose(FlipRandBit(msg), iv, names)
@@ -275,7 +282,7 @@ func MeasurePseudo(msg [16]uint32, iv [8]uint32, names []FunctiionName) [64]int 
 
 }
 
-func MeasureStrict(msg [16]uint32, iv [8]uint32, names []FunctiionName) [64][256]bool {
+func MeasureStrict(msg [16]uint32, iv [8]uint32, names []FunctionName) [64][256]bool {
 
 	_, rounds := Sha256_compress_verbose(msg, iv, names)
 	_, roundsFlip := Sha256_compress_verbose(FlipRandBit(msg), iv, names)
@@ -290,11 +297,11 @@ func MeasureStrict(msg [16]uint32, iv [8]uint32, names []FunctiionName) [64][256
 }
 
 /////////////////////////////////////////////////////////////////////////////////
-// Auxiliary
+// Hash Auxilary
 /////////////////////////////////////////////////////////////////////////////////
 
 //XOR is opposite the rest, as the rest are default
-func FNStoBS(names []FunctiionName) [6]bool {
+func FNStoBS(names []FunctionName) [6]bool {
 
 	var out [6]bool = [6]bool{false, true, true, true, true, true}
 
@@ -391,7 +398,12 @@ func countOnes(xorMsgs [8]uint32) int {
 	return count
 }
 
-func Write(filename string, data [64]int) {
+/////////////////////////////////////////////////////////////////////////////////
+// File Utility
+/////////////////////////////////////////////////////////////////////////////////
+
+
+func WriteFull(filename string, data [64][256]float32) {
 
 	f, err := os.Create("./data/" + filename + ".csv")
 	if err != nil {
@@ -401,10 +413,11 @@ func Write(filename string, data [64]int) {
 	writer := csv.NewWriter(f)
 
 	var dataString [][]string
-	for i := range data {
+	for _,round := range data {
 		var line []string
-		line = append(line, strconv.Itoa(i))
-		line = append(line, strconv.Itoa(data[i]))
+		for _, val := range round {
+			line = append(line, strconv.FormatFloat(float64(val),'f',-1,32))
+		}
 		dataString = append(dataString, line)
 	}
 
@@ -415,6 +428,11 @@ func Write(filename string, data [64]int) {
 	}
 
 }
+
+
+/////////////////////////////////////////////////////////////////////////////////
+// Math utility
+/////////////////////////////////////////////////////////////////////////////////
 
 func Min(array [256]float32) float32 {
 
@@ -440,4 +458,17 @@ func Max(array [256]float32) float32 {
 	}
 
 	return max
+}
+
+func Mean(array [256]float32) float32 {
+
+	mean := 0.0
+	count := 0.0
+	for i, val := range array {
+		mean = mean + float64(val)
+		count = float64(i)
+
+	}
+
+	return float32(mean/count)
 }

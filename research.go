@@ -25,31 +25,6 @@ func main() {
 	//Test()
 	rand.Seed(time.Now().UnixNano())
 
-	// means := MeasureMean(10000, "H", make([]FunctionName, 0))
-	// fmt.Println(means)
-	// Write("H_normal", means)
-	// means = MeasureMean(10000, "ZERO", make([]FunctionName, 0))
-	// fmt.Println(means)
-	// Write("ZERO_normal", means)
-	// means = MeasureMean(10000, "Random", make([]FunctionName, 0))
-	// fmt.Println(means)
-	// Write("Random_normal", means)
-	// fmt.Println()
-
-	// means = MeasureMean(10000, "H", []FunctionName{XOR})
-	// fmt.Println(means)
-	// Write("H_XOR", means)
-	// fmt.Println()
-	// // means = MeasureMean(2000, "ZERO", []FunctionName{XOR})
-	// // fmt.Println(means)
-	// // means = MeasureMean(2000, "Random", []FunctionName{XOR})
-	// // fmt.Println(means)
-	// // fmt.Println()
-
-	// means = MeasureMean(10000, "ZERO", []FunctionName{XOR, MAJOR, CHOOSE})
-	// fmt.Println(means)
-	// Write("ZERO_XOR_MAJ_CH", means)
-
 	means := MeasureStrictMean(10000, "H", []FunctionName{})
 	WriteFull("H_Normal",means)
 
@@ -57,8 +32,11 @@ func main() {
 	means = MeasureStrictMean(10000, "H", []FunctionName{XOR})
 	WriteFull("H_XOR",means)
 
+	means = MeasureStrictMean(10000, "Random", []FunctionName{XOR,Kfunc,CHOOSE,MAJOR,SIGMA_0,SIGMA_1})
+	WriteFull("R_ALL",means)
 
-
+	means = MeasureStrictMean(10000, "Random", []FunctionName{Kfunc,CHOOSE,MAJOR,SIGMA_0,SIGMA_1})
+	WriteFull("R_ALL-XOR",means)
 
 }
 
@@ -141,6 +119,7 @@ func Sha256_compress_verbose(chunk [16]uint32, iv [8]uint32, remove []FunctionNa
 
 func Sha256_compress_round(a uint32, b uint32, c uint32, d uint32, e uint32, f uint32, g uint32, h uint32, k uint32, msg uint32, useFunc [6]bool) (uint32, uint32, uint32, uint32, uint32, uint32, uint32, uint32) {
 
+	
 	T1 := h + msg
 	if useFunc[Kfunc] {
 		T1 += k
@@ -173,7 +152,7 @@ func Sha256_compress_round(a uint32, b uint32, c uint32, d uint32, e uint32, f u
 }
 
 func Sha256XOR_compress_round(a uint32, b uint32, c uint32, d uint32, e uint32, f uint32, g uint32, h uint32, k uint32, msg uint32, useFunc [6]bool) (uint32, uint32, uint32, uint32, uint32, uint32, uint32, uint32) {
-
+	
 	T1 := h ^ msg
 	if useFunc[Kfunc] {
 		T1 ^= k
@@ -209,6 +188,7 @@ func Sha256XOR_compress_round(a uint32, b uint32, c uint32, d uint32, e uint32, 
 // Measurements
 /////////////////////////////////////////////////////////////////////////////////
 
+// This only measures avalanche, not complete-avalanche
 func MeasureMean(count int, ivType string, names []FunctionName) [64]int {
 	var means [64]int
 
@@ -235,6 +215,7 @@ func MeasureMean(count int, ivType string, names []FunctionName) [64]int {
 	return means
 }
 
+//Heuristically measures complete-avalanche
 func MeasureStrictMean(count int, ivType string, names []FunctionName) [64][256]float32 {
 	var means [64][256]float32
 
@@ -268,6 +249,7 @@ func MeasureStrictMean(count int, ivType string, names []FunctionName) [64][256]
 
 }
 
+// Returns amount of 1's in XOR of msg and msg with 1 random bit modified, for all 64 rounds
 func MeasurePseudo(msg [16]uint32, iv [8]uint32, names []FunctionName) [64]int {
 
 	_, rounds := Sha256_compress_verbose(msg, iv, names)
@@ -282,6 +264,7 @@ func MeasurePseudo(msg [16]uint32, iv [8]uint32, names []FunctionName) [64]int {
 
 }
 
+//Returns XOR of msg and msg with 1 random bit modified, for all 64 rounds
 func MeasureStrict(msg [16]uint32, iv [8]uint32, names []FunctionName) [64][256]bool {
 
 	_, rounds := Sha256_compress_verbose(msg, iv, names)

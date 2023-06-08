@@ -20,3 +20,6 @@ def ReadAndPlot(filename):
 
 ReadAndPlot('H_Normal')
 ReadAndPlot('H_XOR')
+
+ReadAndPlot('R_ALL')
+ReadAndPlot('R_ALL-XOR')

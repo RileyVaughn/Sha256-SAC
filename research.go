@@ -13,13 +13,13 @@ import (
 type FunctionName int
 
 const (
-	XOR FunctionName = iota // Use "+" normal when false
-	Kfunc //use when true
-	CHOOSE //use when true
-	MAJOR //use when true
-	SIGMA_0 //use when true
-	SIGMA_1 //use when true
-	SCHEDULE //use when true
+	XOR FunctionName = iota // Defualts "+",  xor when false
+	Kfunc //Defualts true, use when true
+	CHOOSE //Defualts true, use when true
+	MAJOR //Defualts true, use when true
+	SIGMA_0 //Defualts true, use when true
+	SIGMA_1 //Defualts true, use when true
+	SCHEDULE //Defualts true, use when true
 )
 
 func main() {
@@ -38,6 +38,12 @@ func main() {
 
 	means = MeasureStrictMean(10000, "Random", []FunctionName{XOR,Kfunc,CHOOSE,MAJOR,SIGMA_0,SIGMA_1,SCHEDULE})
 	WriteFull("R_ALL",means)
+
+	means = MeasureStrictMean(10000, "Random", []FunctionName{Kfunc,CHOOSE,MAJOR,SIGMA_0,SIGMA_1,SCHEDULE})
+	WriteFull("R_ALL-XOR",means)
+
+	means = MeasureStrictMean(10000, "Random", []FunctionName{SCHEDULE})
+	WriteFull("R_SCHEDULE",means)
 
 }
 
@@ -312,7 +318,7 @@ func MeasureStrict(msg [16]uint32, iv [8]uint32, names []FunctionName) [64][256]
 //XOR is opposite the rest, as the rest are default
 func FNStoBS(names []FunctionName) [7]bool {
 
-	var out [7]bool = [7]bool{false, true, true, true, true, true}
+	var out [7]bool = [7]bool{false, true, true, true, true, true,true}
 
 	for i := range names {
 		switch names[i] {

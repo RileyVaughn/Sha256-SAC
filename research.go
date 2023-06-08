@@ -13,12 +13,13 @@ import (
 type FunctionName int
 
 const (
-	XOR FunctionName = iota
-	Kfunc
-	CHOOSE
-	MAJOR
-	SIGMA_0
-	SIGMA_1
+	XOR FunctionName = iota // Use "+" normal when false
+	Kfunc //use when true
+	CHOOSE //use when true
+	MAJOR //use when true
+	SIGMA_0 //use when true
+	SIGMA_1 //use when true
+	SCHEDULE //use when true
 )
 
 func main() {
@@ -33,10 +34,10 @@ func main() {
 	WriteFull("H_XOR",means)
 
 	means = MeasureStrictMean(10000, "Random", []FunctionName{XOR,Kfunc,CHOOSE,MAJOR,SIGMA_0,SIGMA_1})
-	WriteFull("R_ALL",means)
+	WriteFull("R_ALL-SCHEDULE",means)
 
-	means = MeasureStrictMean(10000, "Random", []FunctionName{Kfunc,CHOOSE,MAJOR,SIGMA_0,SIGMA_1})
-	WriteFull("R_ALL-XOR",means)
+	means = MeasureStrictMean(10000, "Random", []FunctionName{XOR,Kfunc,CHOOSE,MAJOR,SIGMA_0,SIGMA_1,SCHEDULE})
+	WriteFull("R_ALL",means)
 
 }
 
@@ -60,8 +61,17 @@ func Sha256Verbose(msg string) (string, [][64][8]uint32) {
 }
 
 func Sha256_compress_verbose(chunk [16]uint32, iv [8]uint32, remove []FunctionName) ([8]uint32, [64][8]uint32) {
-	msgSchedule := createMessageSchedule(chunk)
+	
 	useFunc := FNStoBS(remove)
+	
+	var msgSchedule [64]uint32
+
+	if useFunc[SCHEDULE] {
+		msgSchedule = createMessageSchedule(chunk)
+	} else {
+		msgSchedule = normalMessageSchedule(chunk)
+	}
+	
 
 	a := iv[0]
 	b := iv[1]
@@ -117,7 +127,7 @@ func Sha256_compress_verbose(chunk [16]uint32, iv [8]uint32, remove []FunctionNa
 
 }
 
-func Sha256_compress_round(a uint32, b uint32, c uint32, d uint32, e uint32, f uint32, g uint32, h uint32, k uint32, msg uint32, useFunc [6]bool) (uint32, uint32, uint32, uint32, uint32, uint32, uint32, uint32) {
+func Sha256_compress_round(a uint32, b uint32, c uint32, d uint32, e uint32, f uint32, g uint32, h uint32, k uint32, msg uint32, useFunc [7]bool) (uint32, uint32, uint32, uint32, uint32, uint32, uint32, uint32) {
 
 	
 	T1 := h + msg
@@ -151,7 +161,7 @@ func Sha256_compress_round(a uint32, b uint32, c uint32, d uint32, e uint32, f u
 	return a, b, c, d, e, f, g, h
 }
 
-func Sha256XOR_compress_round(a uint32, b uint32, c uint32, d uint32, e uint32, f uint32, g uint32, h uint32, k uint32, msg uint32, useFunc [6]bool) (uint32, uint32, uint32, uint32, uint32, uint32, uint32, uint32) {
+func Sha256XOR_compress_round(a uint32, b uint32, c uint32, d uint32, e uint32, f uint32, g uint32, h uint32, k uint32, msg uint32, useFunc [7]bool) (uint32, uint32, uint32, uint32, uint32, uint32, uint32, uint32) {
 	
 	T1 := h ^ msg
 	if useFunc[Kfunc] {
@@ -183,6 +193,22 @@ func Sha256XOR_compress_round(a uint32, b uint32, c uint32, d uint32, e uint32, 
 
 	return a, b, c, d, e, f, g, h
 }
+
+
+func normalMessageSchedule(chunk [16]uint32) [64]uint32 {
+
+	var msgSchedule [64]uint32
+	for j := range chunk {
+		msgSchedule[j] = chunk[j]
+		msgSchedule[j+16] = chunk[j]
+		msgSchedule[j+32] = chunk[j]
+		msgSchedule[j+48] = chunk[j]
+	}
+
+	return msgSchedule
+}
+
+
 
 /////////////////////////////////////////////////////////////////////////////////
 // Measurements
@@ -284,9 +310,9 @@ func MeasureStrict(msg [16]uint32, iv [8]uint32, names []FunctionName) [64][256]
 /////////////////////////////////////////////////////////////////////////////////
 
 //XOR is opposite the rest, as the rest are default
-func FNStoBS(names []FunctionName) [6]bool {
+func FNStoBS(names []FunctionName) [7]bool {
 
-	var out [6]bool = [6]bool{false, true, true, true, true, true}
+	var out [7]bool = [7]bool{false, true, true, true, true, true}
 
 	for i := range names {
 		switch names[i] {
@@ -302,7 +328,8 @@ func FNStoBS(names []FunctionName) [6]bool {
 			out[SIGMA_0] = false
 		case SIGMA_1:
 			out[SIGMA_1] = false
-
+		case SCHEDULE:
+			out[SCHEDULE] = false
 		}
 	}
 

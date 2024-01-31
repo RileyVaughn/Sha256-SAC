@@ -22,7 +22,7 @@ def ReadAndPlotFull(filename):
     plt.close()
 
 
-def ReadAndPLot64(dirName):
+def ReadAndPlot64(dirName):
 
     frames = []
     for i in range(64):
@@ -45,6 +45,6 @@ def ReadAndPLot64(dirName):
     plt.savefig("./data/plots/{}.png".format(dirName))
     plt.close()
 
-ReadAndPlotFull('fullCF')
-ReadAndPLot64("rounds")
-ReadAndPLot64("no_sched")
+#ReadAndPlotFull('fullCF')
+#ReadAndPLot64("rounds")
+ReadAndPlot64("no_sched")

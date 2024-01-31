@@ -46,6 +46,7 @@ func Sha256_compress_verbose(chunk [16]uint32, iv [8]uint32, remove []FunctionNa
 	} else {
 		msgSchedule = plainMessageSchedule(chunk)
 	}
+	//fmt.Println(useFunc[SCHEDULE])
 
 	a := iv[0]
 	b := iv[1]

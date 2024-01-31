@@ -17,10 +17,32 @@ def ReadAndPlotFull(filename):
     plt.title("SAC of SHA256 Compression Function w/ Message Schedular")
     plt.xticks(range(0,513,64))
     plt.yticks(np.arange(.49,.51,.005))
+    plt.legend(["Max Change", "Min Change"])
     plt.savefig("./data/plots/"+ filename+'.png')
+    plt.close()
 
 
-    
+def ReadAndPLot64():
 
+    frames = []
+    for i in range(64):
+        frames.append( pd.read_csv('./data/rounds/round_{}.csv'.format(i+1), header=None).transpose())
+
+
+    min_sac = [np.min([np.min(df[row]) for row in df]) for df in frames]
+    max_sac = [np.max([np.max(df[row]) for row in df]) for df in frames]
+    mean_sac = [np.mean([np.mean(df[row]) for row in df]) for df in frames]
+
+    plt.plot(max_sac)
+    plt.plot(mean_sac)
+    plt.plot(min_sac)
+    plt.xlabel("Round #")
+    plt.ylabel("(%) Change of Hash Output Bit")
+    plt.title("SAC of SHA256 Compression Function w/ Message Schedular")
+    plt.xticks(range(0,65,8))
+    #plt.yticks(np.arange(.49,.51,.005))
+    plt.legend(["Max Change","Mean Change","Min Change"])
+    plt.savefig("./data/plots/rounds.png")
 
 ReadAndPlotFull('fullCF')
+ReadAndPLot64()

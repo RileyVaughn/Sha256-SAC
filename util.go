@@ -43,7 +43,7 @@ func WriteCSV(filename string, data [][]string) {
 func WriteCSV64(data [][][]string) {
 
 	for i := 0; i < 64; i++ {
-		WriteCSV(fmt.Sprintf("rounds/round_%v", i), data[i])
+		WriteCSV(fmt.Sprintf("rounds/round_%v", i+1), data[i])
 	}
 
 }

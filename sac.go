@@ -21,7 +21,7 @@ func FullSAC() {
 func RoundsSac() {
 
 	msgs := CSVtoUint32(ReadCSV("./init_vals/init_vals_512"))
-	msgs = msgs[0:10]
+	msgs = msgs[0:1000]
 	var depMatrices [64][512][256]float32
 	for _, msg := range msgs {
 		AddToDepMat64(&depMatrices, MeasureSac64([16]uint32(msg)))

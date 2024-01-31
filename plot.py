@@ -38,7 +38,7 @@ def ReadAndPLot64():
     plt.plot(min_sac)
     plt.xlabel("Round #")
     plt.ylabel("(%) Change of Hash Output Bit")
-    plt.title("SAC of SHA256 Compression Function w/ Message Schedular")
+    plt.title("SAC of SHA256 Compression Function Rounds")
     plt.xticks(range(0,65,8))
     #plt.yticks(np.arange(.49,.51,.005))
     plt.legend(["Max Change","Mean Change","Min Change"])

@@ -40,6 +40,14 @@ func WriteCSV(filename string, data [][]string) {
 
 }
 
+func WriteCSV64(data [][][]string) {
+
+	for i := 0; i < 64; i++ {
+		WriteCSV(fmt.Sprintf("rounds/round_%v", i), data[i])
+	}
+
+}
+
 func CSVtoUint32(data [][]string) [][]uint32 {
 
 	var data32 [][]uint32
@@ -92,6 +100,12 @@ func AddToDepMat(depMat *[512][256]float32, newMat *[512][256]uint8) {
 	}
 }
 
+func AddToDepMat64(depMat *[64][512][256]float32, newMat *[64][512][256]uint8) {
+	for i := 0; i < 64; i++ {
+		AddToDepMat(&depMat[i], &newMat[i])
+	}
+}
+
 func DepMatDiv(depMat *[512][256]float32, size float32) {
 
 	for i := 0; i < 512; i++ {
@@ -100,6 +114,12 @@ func DepMatDiv(depMat *[512][256]float32, size float32) {
 		}
 	}
 
+}
+
+func DepMatDiv64(depMat *[64][512][256]float32, size float32) {
+	for i := 0; i < 64; i++ {
+		DepMatDiv(&depMat[i], size)
+	}
 }
 
 func DepMatToCSV(depMat *[512][256]float32) [][]string {
@@ -113,4 +133,14 @@ func DepMatToCSV(depMat *[512][256]float32) [][]string {
 		csv = append(csv, line)
 	}
 	return csv
+}
+
+func DepMatToCSV64(depMat *[64][512][256]float32) [][][]string {
+
+	var csvs [][][]string
+
+	for i := 0; i < 64; i++ {
+		csvs = append(csvs, DepMatToCSV(&depMat[i]))
+	}
+	return csvs
 }

@@ -13,10 +13,10 @@ def ReadAndPlotFull(filename):
     plt.plot(max_sac)
     plt.plot(min_sac)
     plt.xlabel("Complimented Bit Index")
-    plt.ylabel("(%) Change for Hash Output Bit")
+    plt.ylabel("(%) Change of Hash Output Bit")
     plt.title("SAC of SHA256 Compression Function w/ Message Schedular")
     plt.xticks(range(0,513,64))
-   #plt.yticks(np.arange(.49,.51,.5))
+    plt.yticks(np.arange(.49,.51,.005))
     plt.savefig("./data/plots/"+ filename+'.png')
 
 

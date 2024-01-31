@@ -7,45 +7,43 @@ import (
 	"math/rand"
 	"os"
 	"strconv"
-	"time"
 )
 
 type FunctionName int
 
 const (
-	XOR FunctionName = iota // Defualts "+",  xor when false
-	Kfunc //Defualts true, use when true
-	CHOOSE //Defualts true, use when true
-	MAJOR //Defualts true, use when true
-	SIGMA_0 //Defualts true, use when true
-	SIGMA_1 //Defualts true, use when true
-	SCHEDULE //Defualts true, use when true
+	XOR      FunctionName = iota // Defualts "+",  xor when false
+	Kfunc                        //Defualts true, use when true
+	CHOOSE                       //Defualts true, use when true
+	MAJOR                        //Defualts true, use when true
+	SIGMA_0                      //Defualts true, use when true
+	SIGMA_1                      //Defualts true, use when true
+	SCHEDULE                     //Defualts true, use when true
 )
 
-func main() {
-	//Test()
-	rand.Seed(time.Now().UnixNano())
+// func main() {
+// 	//Test()
+// 	rand.Seed(time.Now().UnixNano())
 
-	means := MeasureStrictMean(10000, "H", []FunctionName{})
-	WriteFull("H_Normal",means)
+// 	means := MeasureStrictMean(10000, "H", []FunctionName{})
+// 	WriteFull("H_Normal", means)
 
+// 	means = MeasureStrictMean(10000, "H", []FunctionName{XOR})
+// 	WriteFull("H_XOR", means)
 
-	means = MeasureStrictMean(10000, "H", []FunctionName{XOR})
-	WriteFull("H_XOR",means)
+// 	means = MeasureStrictMean(10000, "Random", []FunctionName{XOR, Kfunc, CHOOSE, MAJOR, SIGMA_0, SIGMA_1})
+// 	WriteFull("R_ALL-SCHEDULE", means)
 
-	means = MeasureStrictMean(10000, "Random", []FunctionName{XOR,Kfunc,CHOOSE,MAJOR,SIGMA_0,SIGMA_1})
-	WriteFull("R_ALL-SCHEDULE",means)
+// 	means = MeasureStrictMean(10000, "Random", []FunctionName{XOR, Kfunc, CHOOSE, MAJOR, SIGMA_0, SIGMA_1, SCHEDULE})
+// 	WriteFull("R_ALL", means)
 
-	means = MeasureStrictMean(10000, "Random", []FunctionName{XOR,Kfunc,CHOOSE,MAJOR,SIGMA_0,SIGMA_1,SCHEDULE})
-	WriteFull("R_ALL",means)
+// 	means = MeasureStrictMean(10000, "Random", []FunctionName{Kfunc, CHOOSE, MAJOR, SIGMA_0, SIGMA_1, SCHEDULE})
+// 	WriteFull("R_ALL-XOR", means)
 
-	means = MeasureStrictMean(10000, "Random", []FunctionName{Kfunc,CHOOSE,MAJOR,SIGMA_0,SIGMA_1,SCHEDULE})
-	WriteFull("R_ALL-XOR",means)
+// 	means = MeasureStrictMean(10000, "Random", []FunctionName{SCHEDULE})
+// 	WriteFull("R_SCHEDULE", means)
 
-	means = MeasureStrictMean(10000, "Random", []FunctionName{SCHEDULE})
-	WriteFull("R_SCHEDULE",means)
-
-}
+// }
 
 /////////////////////////////////////////////////////////////////////////////////
 // Hash and compression functions
@@ -67,9 +65,9 @@ func Sha256Verbose(msg string) (string, [][64][8]uint32) {
 }
 
 func Sha256_compress_verbose(chunk [16]uint32, iv [8]uint32, remove []FunctionName) ([8]uint32, [64][8]uint32) {
-	
+
 	useFunc := FNStoBS(remove)
-	
+
 	var msgSchedule [64]uint32
 
 	if useFunc[SCHEDULE] {
@@ -77,7 +75,6 @@ func Sha256_compress_verbose(chunk [16]uint32, iv [8]uint32, remove []FunctionNa
 	} else {
 		msgSchedule = normalMessageSchedule(chunk)
 	}
-	
 
 	a := iv[0]
 	b := iv[1]
@@ -135,7 +132,6 @@ func Sha256_compress_verbose(chunk [16]uint32, iv [8]uint32, remove []FunctionNa
 
 func Sha256_compress_round(a uint32, b uint32, c uint32, d uint32, e uint32, f uint32, g uint32, h uint32, k uint32, msg uint32, useFunc [7]bool) (uint32, uint32, uint32, uint32, uint32, uint32, uint32, uint32) {
 
-	
 	T1 := h + msg
 	if useFunc[Kfunc] {
 		T1 += k
@@ -168,7 +164,7 @@ func Sha256_compress_round(a uint32, b uint32, c uint32, d uint32, e uint32, f u
 }
 
 func Sha256XOR_compress_round(a uint32, b uint32, c uint32, d uint32, e uint32, f uint32, g uint32, h uint32, k uint32, msg uint32, useFunc [7]bool) (uint32, uint32, uint32, uint32, uint32, uint32, uint32, uint32) {
-	
+
 	T1 := h ^ msg
 	if useFunc[Kfunc] {
 		T1 ^= k
@@ -200,7 +196,6 @@ func Sha256XOR_compress_round(a uint32, b uint32, c uint32, d uint32, e uint32, 
 	return a, b, c, d, e, f, g, h
 }
 
-
 func normalMessageSchedule(chunk [16]uint32) [64]uint32 {
 
 	var msgSchedule [64]uint32
@@ -213,8 +208,6 @@ func normalMessageSchedule(chunk [16]uint32) [64]uint32 {
 
 	return msgSchedule
 }
-
-
 
 /////////////////////////////////////////////////////////////////////////////////
 // Measurements
@@ -247,7 +240,7 @@ func MeasureMean(count int, ivType string, names []FunctionName) [64]int {
 	return means
 }
 
-//Heuristically measures complete-avalanche
+// Heuristically measures complete-avalanche
 func MeasureStrictMean(count int, ivType string, names []FunctionName) [64][256]float32 {
 	var means [64][256]float32
 
@@ -296,7 +289,7 @@ func MeasurePseudo(msg [16]uint32, iv [8]uint32, names []FunctionName) [64]int {
 
 }
 
-//Returns XOR of msg and msg with 1 random bit modified, for all 64 rounds
+// Returns XOR of msg and msg with 1 random bit modified, for all 64 rounds
 func MeasureStrict(msg [16]uint32, iv [8]uint32, names []FunctionName) [64][256]bool {
 
 	_, rounds := Sha256_compress_verbose(msg, iv, names)
@@ -315,10 +308,10 @@ func MeasureStrict(msg [16]uint32, iv [8]uint32, names []FunctionName) [64][256]
 // Hash Auxilary
 /////////////////////////////////////////////////////////////////////////////////
 
-//XOR is opposite the rest, as the rest are default
+// XOR is opposite the rest, as the rest are default
 func FNStoBS(names []FunctionName) [7]bool {
 
-	var out [7]bool = [7]bool{false, true, true, true, true, true,true}
+	var out [7]bool = [7]bool{false, true, true, true, true, true, true}
 
 	for i := range names {
 		switch names[i] {
@@ -418,7 +411,6 @@ func countOnes(xorMsgs [8]uint32) int {
 // File Utility
 /////////////////////////////////////////////////////////////////////////////////
 
-
 func WriteFull(filename string, data [64][256]float32) {
 
 	f, err := os.Create("./data/" + filename + ".csv")
@@ -429,10 +421,10 @@ func WriteFull(filename string, data [64][256]float32) {
 	writer := csv.NewWriter(f)
 
 	var dataString [][]string
-	for _,round := range data {
+	for _, round := range data {
 		var line []string
 		for _, val := range round {
-			line = append(line, strconv.FormatFloat(float64(val),'f',-1,32))
+			line = append(line, strconv.FormatFloat(float64(val), 'f', -1, 32))
 		}
 		dataString = append(dataString, line)
 	}
@@ -444,7 +436,6 @@ func WriteFull(filename string, data [64][256]float32) {
 	}
 
 }
-
 
 /////////////////////////////////////////////////////////////////////////////////
 // Math utility
@@ -486,5 +477,5 @@ func Mean(array [256]float32) float32 {
 
 	}
 
-	return float32(mean/count)
+	return float32(mean / count)
 }

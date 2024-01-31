@@ -1,27 +1,26 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
 
 
-def ReadAndPlot(filename):
+def ReadAndPlotFull(filename):
         
-    df = pd.read_csv('./data/'+filename+'.csv', header=None)
+    df = pd.read_csv('./data/'+filename+'.csv', header=None).transpose()
     
-
-    df = df.transpose()
-    ax = df.plot(kind="box",showfliers=False,xlabel="Round #",ylabel="% Bits Flipped",legend=False,figsize=(16,8))
-    vals = ax.get_yticks()
-    ax.set_yticklabels(['{:,.2%}'.format(x) for x in vals])
-
+    min_sac = [np.min(df[row]) for row in df]
+    max_sac = [np.max(df[row]) for row in df]
+    
+    plt.plot(max_sac)
+    plt.plot(min_sac)
+    plt.xlabel("Complimented Bit Index")
+    plt.ylabel("(%) Change for Hash Output Bit")
+    plt.title("SAC of SHA256 Compression Function w/ Message Schedular")
+    plt.xticks(range(0,513,64))
+   #plt.yticks(np.arange(.49,.51,.5))
     plt.savefig("./data/plots/"+ filename+'.png')
 
 
     
 
 
-ReadAndPlot('H_Normal')
-ReadAndPlot('H_XOR')
-
-ReadAndPlot('R_ALL-SCHEDULE')
-ReadAndPlot('R_ALL')
-ReadAndPlot('R_ALL-XOR')
-ReadAndPlot('R_SCHEDULE')
+ReadAndPlotFull('fullCF')

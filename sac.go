@@ -3,7 +3,6 @@ package main
 func main() {
 
 	msgs := CSVtoUint32(ReadCSV("./init_vals/init_vals_512"))
-	msgs = msgs[0:100]
 	var depMatrix [512][256]float32
 	for _, msg := range msgs {
 		AddToDepMat(&depMatrix, MeasureSAC([16]uint32(msg)))

@@ -22,11 +22,11 @@ def ReadAndPlotFull(filename):
     plt.close()
 
 
-def ReadAndPLot64():
+def ReadAndPLot64(dirName):
 
     frames = []
     for i in range(64):
-        frames.append( pd.read_csv('./data/rounds/round_{}.csv'.format(i+1), header=None).transpose())
+        frames.append( pd.read_csv('./data/{}/round_{}.csv'.format(dirName,i+1), header=None).transpose())
 
 
     min_sac = [np.min([np.min(df[row]) for row in df]) for df in frames]
@@ -42,7 +42,9 @@ def ReadAndPLot64():
     plt.xticks(range(0,65,8))
     #plt.yticks(np.arange(.49,.51,.005))
     plt.legend(["Max Change","Mean Change","Min Change"])
-    plt.savefig("./data/plots/rounds.png")
+    plt.savefig("./data/plots/{}.png".format(dirName))
+    plt.close()
 
 ReadAndPlotFull('fullCF')
-ReadAndPLot64()
+ReadAndPLot64("rounds")
+ReadAndPLot64("no_sched")

@@ -40,10 +40,10 @@ func WriteCSV(filename string, data [][]string) {
 
 }
 
-func WriteCSV64(data [][][]string) {
+func WriteCSV64(dirName string, data [][][]string) {
 
 	for i := 0; i < 64; i++ {
-		WriteCSV(fmt.Sprintf("rounds/round_%v", i+1), data[i])
+		WriteCSV(fmt.Sprintf("%s/round_%v", dirName, i+1), data[i])
 	}
 
 }

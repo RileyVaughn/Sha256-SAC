@@ -16,30 +16,6 @@ const (
 	SCHEDULE                     //Defualts true, use when true
 )
 
-// func main() {
-// 	//Test()
-// 	rand.Seed(time.Now().UnixNano())
-
-// 	means := MeasureStrictMean(10000, "H", []FunctionName{})
-// 	WriteFull("H_Normal", means)
-
-// 	means = MeasureStrictMean(10000, "H", []FunctionName{XOR})
-// 	WriteFull("H_XOR", means)
-
-// 	means = MeasureStrictMean(10000, "Random", []FunctionName{XOR, Kfunc, CHOOSE, MAJOR, SIGMA_0, SIGMA_1})
-// 	WriteFull("R_ALL-SCHEDULE", means)
-
-// 	means = MeasureStrictMean(10000, "Random", []FunctionName{XOR, Kfunc, CHOOSE, MAJOR, SIGMA_0, SIGMA_1, SCHEDULE})
-// 	WriteFull("R_ALL", means)
-
-// 	means = MeasureStrictMean(10000, "Random", []FunctionName{Kfunc, CHOOSE, MAJOR, SIGMA_0, SIGMA_1, SCHEDULE})
-// 	WriteFull("R_ALL-XOR", means)
-
-// 	means = MeasureStrictMean(10000, "Random", []FunctionName{SCHEDULE})
-// 	WriteFull("R_SCHEDULE", means)
-
-// }
-
 /////////////////////////////////////////////////////////////////////////////////
 // Hash and compression functions
 /////////////////////////////////////////////////////////////////////////////////
@@ -68,7 +44,7 @@ func Sha256_compress_verbose(chunk [16]uint32, iv [8]uint32, remove []FunctionNa
 	if useFunc[SCHEDULE] {
 		msgSchedule = createMessageSchedule(chunk)
 	} else {
-		msgSchedule = normalMessageSchedule(chunk)
+		msgSchedule = plainMessageSchedule(chunk)
 	}
 
 	a := iv[0]
@@ -191,7 +167,7 @@ func Sha256XOR_compress_round(a uint32, b uint32, c uint32, d uint32, e uint32, 
 	return a, b, c, d, e, f, g, h
 }
 
-func normalMessageSchedule(chunk [16]uint32) [64]uint32 {
+func plainMessageSchedule(chunk [16]uint32) [64]uint32 {
 
 	var msgSchedule [64]uint32
 	for j := range chunk {

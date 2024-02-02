@@ -10,14 +10,16 @@ def ReadAndPlotFull(filename):
     min_sac = [np.min(df[row]) for row in df]
     max_sac = [np.max(df[row]) for row in df]
     
-    plt.plot(max_sac)
-    plt.plot(min_sac)
+    plt.scatter([y for y in range(1,513)], max_sac,s=1)
+    plt.scatter([y for y in range(1,513)], min_sac, s=1)
     plt.xlabel("Complimented Bit Index")
     plt.ylabel("(%) Change of Hash Output Bit")
-    plt.title("SAC of SHA256 Compression Function w/ Message Schedular")
+    plt.title("SAC of SHA256 Compression Function w/o Message Schedular")
     plt.xticks(range(0,513,64))
     plt.yticks(np.arange(.49,.51,.005))
     plt.legend(["Max Change", "Min Change"])
+    plt.tight_layout()
+    plt.savefig("./data/plots/"+ filename+'.eps', format="eps")
     plt.savefig("./data/plots/"+ filename+'.png')
     plt.close()
 
@@ -34,17 +36,25 @@ def ReadAndPlot64(dirName):
     mean_sac = [np.mean([np.mean(df[row]) for row in df]) for df in frames]
 
     plt.plot(max_sac)
-    plt.plot(mean_sac)
     plt.plot(min_sac)
+    plt.plot(mean_sac)
+    # plt.scatter([y for y in range(1,65)], max_sac,s=1)
+    # plt.scatter([y for y in range(1,65)], min_sac,s=1)
+    # plt.scatter([y for y in range(1,65)], mean_sac,s=1)
+
     plt.xlabel("Round #")
     plt.ylabel("(%) Change of Hash Output Bit")
-    plt.title("SAC of SHA256 Compression Function Rounds")
+    plt.title("SAC of SHA256 Compression Function Rounds w/ Message Schedular")
     plt.xticks(range(0,65,8))
     plt.yticks(np.arange(0,1.01,.25))
-    plt.legend(["Max Change","Mean Change","Min Change"])
+    plt.legend(["Max Change","Min Change","Mean Change"])
+    plt.tight_layout()
+    plt.savefig("./data/plots/{}.eps".format(dirName), format="eps")
     plt.savefig("./data/plots/{}.png".format(dirName))
     plt.close()
 
-#ReadAndPlotFull('fullCF')
+ReadAndPlotFull('fullCF')
 ReadAndPlot64("rounds")
-#ReadAndPlot64("no_sched")
+ReadAndPlot64("no_sched")
+
+ReadAndPlotFull("no_sched_fullCF")

@@ -2,21 +2,21 @@ package main
 
 func main() {
 
-	//FullSAC()
-	//RoundsSac("rounds", []FunctionName{})
+	FullSAC("no_sched_fullCF", []FunctionName{SCHEDULE})
 
-	RoundsSac("no_sched", []FunctionName{SCHEDULE})
+	//RoundsSac("no_sched", []FunctionName{SCHEDULE})
 }
 
-func FullSAC() {
+func FullSAC(fileName string, rmvFuncs []FunctionName) {
 
 	msgs := CSVtoUint32(ReadCSV("./init_vals/init_vals_512"))
+
 	var depMatrix [512][256]float32
 	for _, msg := range msgs {
-		AddToDepMat(&depMatrix, MeasureSAC([16]uint32(msg)))
+		AddToDepMat(&depMatrix, MeasureSAC([16]uint32(msg), rmvFuncs))
 	}
 	DepMatDiv(&depMatrix, float32(len(msgs)))
-	WriteCSV("fullCF", DepMatToCSV((&depMatrix)))
+	WriteCSV(fileName, DepMatToCSV((&depMatrix)))
 
 }
 
@@ -33,15 +33,15 @@ func RoundsSac(dirName string, rmvFuncs []FunctionName) {
 
 }
 
-func MeasureSAC(msg [16]uint32) *[512][256]uint8 {
+func MeasureSAC(msg [16]uint32, rmvFuncs []FunctionName) *[512][256]uint8 {
 
-	hash := Sha256_compress(msg, H)
+	hash, _ := Sha256_compress_verbose(msg, H, rmvFuncs)
 
 	var depMatrix [512][256]uint8
 
 	for i := uint32(0); i < 512; i++ {
 		msg2 := FlipBit(msg, i)
-		hash2 := Sha256_compress(msg2, H)
+		hash2, _ := Sha256_compress_verbose(msg2, H, rmvFuncs)
 		depMatrix[i] = *Uint32x8ToUint8x256(XorHash(&hash, &hash2))
 	}
 

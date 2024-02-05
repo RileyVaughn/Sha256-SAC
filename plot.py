@@ -53,8 +53,50 @@ def ReadAndPlot64(dirName):
     plt.savefig("./data/plots/{}.png".format(dirName))
     plt.close()
 
-ReadAndPlotFull('fullCF')
-ReadAndPlot64("rounds")
-ReadAndPlot64("no_sched")
 
-ReadAndPlotFull("no_sched_fullCF")
+def ReadAndPlotSub():
+
+    dir_names = ["no_choose","no_k","no_major","no_sched","no_sig0", "no_sig1","xor","rounds"]
+    means = []
+    mins = []
+    maxs = []
+
+    for dirName in dir_names:
+        temp = []
+        for j in range(64):
+            temp.append( pd.read_csv('./data/{}/round_{}.csv'.format(dirName,j+1), header=None).transpose())
+        mean_sac = [np.mean([np.mean(df[row]) for row in df]) for df in temp]
+        min_sac = [np.min([np.min(df[row]) for row in df]) for df in temp]
+        max_sac = [np.max([np.max(df[row]) for row in df]) for df in temp]
+        means.append(mean_sac)
+        mins.append(min_sac)
+        maxs.append(max_sac)
+        
+    
+    colors = ['tab:blue','tab:orange','tab:green','tab:olive','tab:pink','tab:cyan','tab:purple','k']
+    labels = ['Choose Removed', 'K Removed', 'Majority Removed', 'Schedule Removed', 'Sigma0 Removed', 'Sigma1 Removed', 'Integer Add Removed', 'Normal']
+    for i in range(8):
+        plt.plot(maxs[i], color=colors[i], linestyle='dashed', label = '')
+        plt.plot(mins[i], color=colors[i],linestyle='dashed', label = '')
+        plt.plot(means[i], color=colors[i],linestyle='solid', label = labels[i])
+
+
+        
+
+    plt.xlabel("Round #")
+    plt.ylabel("(%) Change of Hash Output Bit")
+    plt.title("SAC of Compression function w/ Sub-functions Removed")
+    plt.xticks(range(0,65,8))
+    plt.yticks(np.arange(0,1.01,.25))
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig("./data/plots/all_subs.eps", format="eps")
+    plt.savefig("./data/plots/all_subs.png")
+    plt.close()
+
+# ReadAndPlotFull('fullCF')
+# ReadAndPlot64("rounds")
+# ReadAndPlot64("no_sched")
+
+# ReadAndPlotFull("no_sched_fullCF")
+ReadAndPlotSub()

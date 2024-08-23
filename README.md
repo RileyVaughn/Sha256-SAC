@@ -1,0 +1,1 @@
+The majority of the data for this project does not fit on github. It is ~480GB of csv files. If you wish to view the raw data, feel free to contact me. when the paper is published I will include a link here.

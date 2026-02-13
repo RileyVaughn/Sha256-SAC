@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
+
 def ReadAndMeasure(filename):
 
     df = pd.read_csv('./data/'+filename+'.csv', header=None).transpose()
@@ -49,11 +50,49 @@ def RM64(dirName):
  
 
 
+def RAMIntersect2(fn1,fn2,fn12):
+
+    df1 = pd.read_csv('./data/'+fn1+'.csv', header=None).transpose() - .5
+    df2 = pd.read_csv('./data/'+fn2+'.csv', header=None).transpose() - .5
+    df12 = (pd.read_csv('./data/'+fn12+'.csv', header=None).transpose() -.5).abs()
+
+    df_comb = (df1+df2).abs()
+
+    max_comb = np.max([np.max(df_comb[row]) for row in df_comb])
+    max_12 = np.max([np.max(df12[row]) for row in df12])
+
+    print(max_comb)
+    print(max_12)
 
 
-#ReadAndMeasure("no_choose_fullFC")
-#ReadAndMeasure64("no_sig1")
+def RAMI2Rounds(dn1,dn2,dn12):
+
+    frames_comb = []
+    frames12 = []
+    for i in range(64):
+        csv_from_1 = pd.read_csv('./data/{}/round_{}.csv'.format(dn1,i+1), header=None).transpose()
+        csv_from_2 = pd.read_csv('./data/{}/round_{}.csv'.format(dn2,i+1), header=None).transpose()
+        ((csv_from_1-.5)+(csv_from_2-.5)).abs()
+
+        frames_comb.append(((csv_from_1-.5)+(csv_from_2-.5)).abs())
+        frames12.append((pd.read_csv('./data/{}/round_{}.csv'.format(dn12,i+1), header=None).transpose()-.5).abs())
+
+
     
-ReadAndMeasure64("rounds")
-#ReadAndMeasure64("no_sched")
-#ReadAndMeasure64("no_choose")
+    max_comb = [np.max([np.max(df[row]) for row in df]) for df in frames_comb]
+    max_12 = [np.max([np.max(df[row]) for row in df]) for df in frames12]
+
+
+    #print(list(zip(max_comb, max_12,[i+1 for i in range(64)])))
+    print([
+        (round(float(a), 4), round(float(b), 4), i)
+        for a, b, i in zip(max_comb, max_12, [i+1 for i in range(64)])
+    ])
+
+
+
+    
+
+
+
+RAMI2Rounds('removed_1/C','removed_1/M','removed_2/CM')

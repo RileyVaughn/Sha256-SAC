@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	N := 100000
+	N := 1000000
 
 	var msgs [][]string
 	for i := 0; i < N; i++ {

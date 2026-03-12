@@ -1,13 +1,19 @@
 package main
 
+var INIT_MSGS [][]uint32
+
+
 func main() {
 
-	R1()
-	R2()
-	R3()
-	R4()
-	R5()
-	R6()
+
+	INIT_MSGS = CSVtoUint32(ReadCSV("./init_vals/init_vals_512"))
+
+	// R1()
+	// R2()
+	// R3()
+	// R4()
+	// R5()
+	// R6()
 
 
 	
@@ -248,7 +254,7 @@ func R5() {
 
 	////
 
-	RoundsSac("removed_5/MKRS0S1", []FunctionName{MAJOR, Kfunc, SCHEDULE, SIGMA_0, SIGMA_1)
+	RoundsSac("removed_5/MKRS0S1", []FunctionName{MAJOR, Kfunc, SCHEDULE, SIGMA_0, SIGMA_1})
 
 	////////
 
@@ -309,8 +315,9 @@ func FullSAC(fileName string, rmvFuncs []FunctionName) {
 
 func RoundsSac(dirName string, rmvFuncs []FunctionName) {
 
-	msgs := CSVtoUint32(ReadCSV("./init_vals/init_vals_512"))
-	msgs = msgs[0:10]
+	msgs := INIT_MSGS
+	// msgs := CSVtoUint32(ReadCSV("./init_vals/init_vals_512"))
+	//msgs = msgs[0:10]
 	var depMatrices [64][512][256]float32
 	for _, msg := range msgs {
 		AddToDepMat64(&depMatrices, MeasureSac64([16]uint32(msg), rmvFuncs))

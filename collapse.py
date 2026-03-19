@@ -19,9 +19,9 @@ def collapse_64rounds(base):
         mean_sac = np.mean([np.mean(round_df[row]) for row in round_df])
 
         if abs(max_sac-.5) > abs(min_sac-.5):
-            abs_sac = abs(max_sac-.5)
+            abs_sac = .5-abs(max_sac-.5)
         else:
-            abs_sac = abs(min_sac-.5)
+            abs_sac = .5-abs(min_sac-.5)
 
         mean_sacs.append(mean_sac)
         abs_sacs.append(abs_sac)
@@ -46,4 +46,6 @@ def collapse_all_at_level(base):
 
 
 # collapse_all_at_level(Path('data') / 'removed_6')
-collapse_all_at_level(Path('data') / 'removed_1')
+# collapse_all_at_level(Path('data') / 'removed_1')
+
+collapse_64rounds(Path('data') / 'removed_0')

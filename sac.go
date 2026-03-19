@@ -8,6 +8,8 @@ func main() {
 
 	INIT_MSGS = CSVtoUint32(ReadCSV("./init_vals/init_vals_512"))
 
+
+	RoundsSac("removed_0", []FunctionName{})
 	// R1()
 	// R2()
 	// R3()

@@ -43,9 +43,9 @@ def collapse_all_at_level(base):
 
 
 # collapse_all_at_level(Path('data') / 'removed_1')
-collapse_all_at_level(Path('data') / 'removed_2')
-#collapse_all_at_level(Path('data') / 'removed_3')
-collapse_all_at_level(Path('data') / 'removed_4')
+# collapse_all_at_level(Path('data') / 'removed_2')
+collapse_all_at_level(Path('data') / 'removed_3')
+# collapse_all_at_level(Path('data') / 'removed_4')
 #collapse_all_at_level(Path('data') / 'removed_5')
 # collapse_all_at_level(Path('data') / 'removed_6')
 

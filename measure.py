@@ -70,19 +70,59 @@ def MeasureIntersect(path1, path2, pathex):
 
 
 
+def AllAtLevelMI(individuals, base):
+
+    indiv_dict = dict()
+    labels = {'M','C','X','K','R','S0','S1'}
+    out_df = pd.DataFrame()
+
+
+    for i, d in enumerate(individuals.rglob("*")):
+        if d.is_dir() and not any(p.is_dir() for p in d.iterdir()):
+            name = list(RenameComb(d.parts[-1]))[0]
+            indiv_dict[name] = pd.read_csv(d / '_stats.csv',header=None).drop(columns=[1])
+
+    for i, d in enumerate(base.rglob("*")):
+        if d.is_dir() and not any(p.is_dir() for p in d.iterdir()):
+
+            name = RenameComb(d.parts[-1])
+            subfuncs = []
+            for label in labels:
+                if label in name:
+                    subfuncs.append(label)
+            measured_df = pd.read_csv(d / '_stats.csv',header=None).drop(columns=[1])
+            # measured_df = measured_df.rename(columns={0:"".join(name)}).drop(columns=[1])
+
+
+            product_df = pd.DataFrame()[0]=1
+            for sf in subfuncs:
+                product_df *= (1-2*indiv_dict[sf])
+
+            expected_df = (1-product_df)/2
+
+            diff_df = measured_df/expected_df
+            diff_df = diff_df.rename(columns={0:''.join(name)})
+            
+
+            out_df = pd.concat([out_df,diff_df],axis=1)
+
+    out_df.index = out_df.index + 1
+    out_df = out_df.iloc[63] #Cuts too last row.
+    out_df.to_csv(base /'_diffs.csv',float_format='%.5f',header=None)
+
 # AllAtLevelWH(Path('data') / 'removed_1')
 # AllAtLevelWH(Path('data') / 'removed_2')
-# # AllAtLevelWH(Path('data') / 'removed_3')
+# AllAtLevelWH(Path('data') / 'removed_3')
 # AllAtLevelWH(Path('data') / 'removed_4')
 # AllAtLevelWH(Path('data') / 'removed_5')
 # AllAtLevelWH(Path('data') / 'removed_6')
 
-r0 = list(WhenThreshold(Path('data') / 'removed_0'))
-r0[0] = ''
-df = pd.DataFrame()
-df['name'] = [r0[0]]
-df['round'] = [r0[1]]
-df.to_csv(Path('data')/'removed_0' /'_rounds.csv',index=False,header=False)
+# r0 = list(WhenThreshold(Path('data') / 'removed_0'))
+# r0[0] = ''
+# df = pd.DataFrame()
+# df['name'] = [r0[0]]
+# df['round'] = [r0[1]]
+# df.to_csv(Path('data')/'removed_0' /'_rounds.csv',index=False,header=False)
 
 
 # majority = Path('data') / 'removed_6' / 'CKXRS0S1'
@@ -91,5 +131,9 @@ df.to_csv(Path('data')/'removed_0' /'_rounds.csv',index=False,header=False)
 
 # MeasureIntersect(majority,choose,mc)
 
-
-
+AllAtLevelMI(Path('data') / 'removed_6',Path('data') / 'removed_0')
+AllAtLevelMI(Path('data') / 'removed_6',Path('data') / 'removed_1')
+AllAtLevelMI(Path('data') / 'removed_6',Path('data') / 'removed_2')
+AllAtLevelMI(Path('data') / 'removed_6',Path('data') / 'removed_3')
+AllAtLevelMI(Path('data') / 'removed_6',Path('data') / 'removed_4')
+AllAtLevelMI(Path('data') / 'removed_6',Path('data') / 'removed_5')
